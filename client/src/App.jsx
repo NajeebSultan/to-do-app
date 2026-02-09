@@ -80,35 +80,41 @@ function App() {
     }
 
     return (
-        <div className="container">
-            <header className="main-header">
-                <h1>Today <span className="date-display">{dateFormatted}</span></h1>
-            </header>
-
-            <CategoryGrid tasks={tasks} />
-
-            <div className="task-list-container">
-                <TaskList
-                    tasks={sortedTasks}
-                    onToggleComplete={toggleTaskComplete}
-                    onDeleteTask={deleteTask}
-                />
+        <div className="app-wrapper">
+            <div className="brand-header-external">
+                <div className="brand-logo-large">P</div>
+                <span className="brand-name-large">Praxis</span>
             </div>
 
-            <div className="fab-container">
-                <button className="fab-btn" onClick={() => setIsModalOpen(true)}>
-                    <span>+</span>
-                </button>
-            </div>
+            <div className="container">
+                <header className="main-header">
+                    <h1>Today <span className="date-display">{dateFormatted}</span></h1>
+                </header>
 
-            {isModalOpen && (
-                <AddTaskModal
-                    onClose={() => setIsModalOpen(false)}
-                    onAddTask={addTask}
-                />
-            )}
-        </div>
-    );
+                <CategoryGrid tasks={tasks} />
+
+                <div className="task-list-container">
+                    <TaskList
+                        tasks={sortedTasks}
+                        onToggleComplete={toggleTaskComplete}
+                        onDeleteTask={deleteTask}
+                    />
+                </div>
+
+                <div className="fab-container">
+                    <button className="fab-btn" onClick={() => setIsModalOpen(true)}>
+                        <span>+</span>
+                    </button>
+                </div>
+
+                {isModalOpen && (
+                    <AddTaskModal
+                        onClose={() => setIsModalOpen(false)}
+                        onAddTask={addTask}
+                    />
+                )}
+            </div>
+            );
 }
 
-export default App;
+            export default App;
