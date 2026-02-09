@@ -2,11 +2,13 @@ import { useState } from 'react';
 
 function AddTaskModal({ onClose, onAddTask }) {
     const [title, setTitle] = useState('');
-    const [category, setCategory] = useState('personal');
-    const [dueDate] = useState(new Date().toISOString().split('T')[0]);
-    const [priority] = useState('med');
+    const [desc, setDesc] = useState('');
+    const [category, setCategory] = useState('Personal');
+    const [priority, setPriority] = useState('Med');
+    const [dueDate, setDueDate] = useState(new Date().toISOString().split('T')[0]);
 
-    const categories = ['personal', 'work', 'shopping', 'health', 'learning', 'mental'];
+    const categories = ['Personal', 'Work', 'Shopping', 'Health', 'Learning'];
+    const priorities = ['High', 'Med', 'Low'];
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -14,63 +16,81 @@ function AddTaskModal({ onClose, onAddTask }) {
 
         onAddTask({
             title,
+            description: desc,
             category,
+            priority, // Using the new field
             dueDate,
-            priority
+            completed: false,
+            createdAt: new Date()
         });
-        setTitle('');
+        onClose();
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-card" onClick={e => e.stopPropagation()}>
-                <button className="modal-close-btn" onClick={onClose}>&times;</button>
+                <div className="modal-header">
+                    <h2>New Task</h2>
+                    <button className="modal-close-icon" onClick={onClose}>&times;</button>
+                </div>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 0 }}>
+                <form onSubmit={handleSubmit} className="proper-form">
 
-                    <textarea
-                        className="new-task-input"
-                        placeholder="Write a new task..."
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        autoFocus
-                        rows={3}
-                    />
+                    <div className="form-group">
+                        <input
+                            type="text"
+                            className="form-input-main"
+                            placeholder="What needs to be done?"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            autoFocus
+                        />
+                    </div>
 
-                    <button type="button" className="add-subtask-btn">
-                        <span className="checkbox-placeholder"></span>
-                        <span style={{ marginLeft: '12px' }}>Add subtask</span>
-                    </button>
+                    <div className="form-group">
+                        <textarea
+                            className="form-textarea"
+                            placeholder="Add a note... (optional)"
+                            value={desc}
+                            onChange={(e) => setDesc(e.target.value)}
+                            rows={3}
+                        />
+                    </div>
 
-                    <div style={{ marginTop: 'auto' }}>
-                        <div className="modal-tags">
-                            {categories.map(cat => (
-                                <button
-                                    key={cat}
-                                    type="button"
-                                    className={`modal-tag-btn tag-${cat} ${category === cat ? 'selected' : ''}`}
-                                    onClick={() => setCategory(cat)}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="modal-actions-row">
-                            <button type="button" className="timer-btn">
-                                🕒
-                            </button>
-                            <button type="button" className="timer-btn">
-                                🏷️
-                            </button>
-                            <button
-                                type="submit"
-                                className="save-btn"
-                                disabled={!title.trim()}
+                    <div className="form-row">
+                        <div className="select-wrapper">
+                            <select
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className="form-select"
                             >
-                                Save
-                            </button>
+                                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
                         </div>
+
+                        <div className="select-wrapper">
+                            <select
+                                value={priority}
+                                onChange={(e) => setPriority(e.target.value)}
+                                className="form-select"
+                            >
+                                {priorities.map(p => <option key={p} value={p}>{p} Priority</option>)}
+                            </select>
+                        </div>
+
+                        <div className="select-wrapper">
+                            <input
+                                type="date"
+                                className="form-select" // Re-using select style for consistency
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="modal-footer">
+                        <button type="button" className="btn-cancel" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="btn-save">Add Task</button>
                     </div>
 
                 </form>
