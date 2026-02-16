@@ -159,15 +159,7 @@ function App() {
                     <button className="primary-add-btn" onClick={() => setIsModalOpen(true)}>
                         + Add Task
                     </button>
-                    <button onClick={logout} className="logout-btn" style={{
-                        marginLeft: '1rem',
-                        background: 'none',
-                        border: '1px solid #404040',
-                        color: '#e0e0e0',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '6px',
-                        cursor: 'pointer'
-                    }}>
+                    <button onClick={logout} className="logout-btn">
                         Logout
                     </button>
                 </div>
