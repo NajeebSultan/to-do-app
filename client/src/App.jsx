@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './api/axios'; // Import configured axios instance
 import TaskList from './components/TaskList';
 import AddTaskModal from './components/AddTaskModal';
 import CategoryGrid from './components/CategoryGrid';
+import { useAuth } from './context/AuthContext'; // Import useAuth for logout
 
-const API_URL = 'http://localhost:5000/api/tasks';
+// Remove API_URL constant as it's handled in api/axios.js
 
 function App() {
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const { logout } = useAuth(); // Get logout function
 
     // Get Today's Date formatted: "26 Dec"
     const today = new Date();
@@ -21,7 +23,7 @@ function App() {
 
     const fetchTasks = async () => {
         try {
-            const response = await axios.get(API_URL);
+            const response = await api.get('/tasks'); // Use api instance and relative path
             if (Array.isArray(response.data)) {
                 setTasks(response.data);
             } else {
@@ -36,7 +38,7 @@ function App() {
 
     const addTask = async (taskData) => {
         try {
-            const response = await axios.post(API_URL, taskData);
+            const response = await api.post('/tasks', taskData);
             setTasks([response.data, ...tasks]);
             setIsModalOpen(false);
         } catch (error) {
@@ -46,7 +48,7 @@ function App() {
 
     const toggleTaskComplete = async (taskId, currentStatus) => {
         try {
-            const response = await axios.put(`${API_URL}/${taskId}`, {
+            const response = await api.put(`/tasks/${taskId}`, {
                 completed: !currentStatus
             });
             setTasks(tasks.map(task =>
@@ -59,7 +61,7 @@ function App() {
 
     const deleteTask = async (taskId) => {
         try {
-            await axios.delete(`${API_URL}/${taskId}`);
+            await api.delete(`/tasks/${taskId}`);
             setTasks(tasks.filter(task => task._id !== taskId));
         } catch (error) {
             console.error('Error deleting task:', error);
@@ -156,6 +158,17 @@ function App() {
                     </span>
                     <button className="primary-add-btn" onClick={() => setIsModalOpen(true)}>
                         + Add Task
+                    </button>
+                    <button onClick={logout} className="logout-btn" style={{
+                        marginLeft: '1rem',
+                        background: 'none',
+                        border: '1px solid #404040',
+                        color: '#e0e0e0',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '6px',
+                        cursor: 'pointer'
+                    }}>
+                        Logout
                     </button>
                 </div>
             </header>

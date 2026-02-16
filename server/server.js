@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Task = require('./models/Task');
+const verifyToken = require('./middleware/auth'); // Import auth middleware
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,10 +19,13 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // API Routes
 
-// GET all tasks
+// Apply Auth Middleware to all /api/tasks routes
+app.use('/api/tasks', verifyToken);
+
+// GET all tasks for the authenticated user
 app.get('/api/tasks', async (req, res) => {
     try {
-        const tasks = await Task.find().sort({ createdAt: -1 });
+        const tasks = await Task.find({ userId: req.user.uid }).sort({ createdAt: -1 });
         res.json(tasks);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching tasks', error: error.message });
@@ -34,6 +38,7 @@ app.post('/api/tasks', async (req, res) => {
         const { title, category, dueDate, priority } = req.body;
 
         const newTask = new Task({
+            userId: req.user.uid, // Assign to current user
             title,
             category,
             dueDate,
@@ -49,19 +54,20 @@ app.post('/api/tasks', async (req, res) => {
 });
 
 // PUT update task (toggle completed status)
+// Ensure user owns the task
 app.put('/api/tasks/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { completed } = req.body;
 
-        const updatedTask = await Task.findByIdAndUpdate(
-            id,
+        const updatedTask = await Task.findOneAndUpdate(
+            { _id: id, userId: req.user.uid }, // Ensure ownership
             { completed },
             { new: true, runValidators: true }
         );
 
         if (!updatedTask) {
-            return res.status(404).json({ message: 'Task not found' });
+            return res.status(404).json({ message: 'Task not found or unauthorized' });
         }
 
         res.json(updatedTask);
@@ -71,14 +77,15 @@ app.put('/api/tasks/:id', async (req, res) => {
 });
 
 // DELETE task
+// Ensure user owns the task
 app.delete('/api/tasks/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        const deletedTask = await Task.findByIdAndDelete(id);
+        const deletedTask = await Task.findOneAndDelete({ _id: id, userId: req.user.uid });
 
         if (!deletedTask) {
-            return res.status(404).json({ message: 'Task not found' });
+            return res.status(404).json({ message: 'Task not found or unauthorized' });
         }
 
         res.json({ message: 'Task deleted successfully', task: deletedTask });
@@ -87,7 +94,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
     }
 });
 
-// Health check endpoint
+// Health check endpoint (Public)
 app.get('/api/health', (req, res) => {
     res.json({ status: 'Server is running', timestamp: new Date() });
 });
